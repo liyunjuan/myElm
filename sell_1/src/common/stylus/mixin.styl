@@ -1,0 +1,20 @@
+// css的一些预处理方法，可以定义一些函数
+// 通用的方法，更多地方可以使用
+border-1px($color)
+  position: relative
+  &:after
+    display: block
+    position: absolute
+    left: 0
+    bottom: 0
+    width: 100%
+    border-top: 1px solid $color
+    content: ' '
+border-none()
+  &:after
+    display :none
+
+bg-image($url)
+  background-image: url($url+"@2x.png")
+  @media(-webkit-min-device-pixel-ratio: 3),(min-device-pixel-ration: 3)
+    background-image url($url+"@3x.png")
