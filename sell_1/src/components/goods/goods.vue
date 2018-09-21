@@ -16,7 +16,7 @@
         <li v-for="item in goods" class="food-list food-list-hook">
           <h1 class="title">{{item.name}}</h1>
           <ul>
-            <li v-for="food in item.foods" class="food-item border-1px">
+            <li v-for="food in item.foods" @click="selectFood(food,$event)" class="food-item border-1px">
               <div class="icon">
                 <img width="57" :src="d food.icon" alt="">
               </div>
@@ -40,8 +40,9 @@
       </ul>
     </div>
     <!--传2个属性，一个是配送费，一个是起送费-->
-    <shopcart :select-foods="selectFoods" :delivery-price="seller.deliveryPrice" :min-price="seller.minPrice"></shopcart>
+    <shopcart v-ref:shopcart :select-foods="selectFoods" :delivery-price="seller.deliveryPrice" :min-price="seller.minPrice"></shopcart>
   </div>
+  <food :food="selectedFood" v-ref:food></food>
 </template>
 
 <script type="text/ecmascript-6">
@@ -49,6 +50,8 @@
   //引用之后需要在export里面加一个components
   import shopcart from 'components/shopcart/shopcart';
   import cartcontrol from 'components/cartcontrol/cartcontrol';
+  import food from 'components/food/food';
+
 
   const ERR_OK = 0;
 
@@ -63,7 +66,8 @@
       return {
         goods:[],
         listHeight:[], //右边商品的高度
-        scrollY:0 //y轴的高度
+        scrollY:0, //y轴的高度,
+        selectedFood:{}
       };
     },
     //计算属性
@@ -121,6 +125,14 @@
         let el = foodList[index];
         this.foodsScroll.scrollToElement(el,300);
       },
+      _drop(target){
+        //在这个方法里面去调用shopcat里面的下落的方法
+        //$refs.名称 ,就是访问到了子组件，然后再访问里面的方法
+        //这个加购物车标志点击一下同时又两个动画，可以进行一下优化,用$nextTick可以做到，异步执行下落动画
+        this.$nextTick(() => {
+          this.$refs.shopcart.drop(target);
+        });
+      },
       _initScroll(){
         this.menuScroll = new BScroll(this.$els.menuWrapper,{
           click:true
@@ -143,12 +155,29 @@
           height += item.clientHeight;
           this.listHeight.push(height);
         }
+      },
+      selectFood(food,event){
+        if(!event._constructed){
+          return;
+        }
+        this.selectedFood = food;
+        this.$refs.food.show();
       }
     },
     //注册，这里是一个属性
     components: {
       shopcart,
-      cartcontrol
+      cartcontrol,
+      food
+    },
+    //这个events是接受子组件里面的方法
+    events:{
+      //这样父组件就接受到了从子组件传来的一个事件
+      //当父组件拿到这个事件以后，需要调用子组件的一个方法
+      'cart.add'(target){
+        //在这里处理下落的方法
+        this._drop(target);
+      }
     }
   };
 </script>
