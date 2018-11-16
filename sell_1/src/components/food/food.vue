@@ -30,8 +30,24 @@
       <split></split>
       <div class="rating">
         <h1 class="title">商品评价</h1>
-        <!--: 这里的冒号后面的也是传入到子组件里面去用的-->
+        <!-- : 这里的冒号后面的也是传入到子组件里面去用的-->
         <ratingselect :select-type="selectType" :only-content="onlyContent" :desc="desc" :ratings="food.ratings"></ratingselect>
+        <div class="rating-wrapper">
+          <ul v-show="food.ratings && food.ratings.length">
+            <!-- v-show="needShow(rating.type,rating.text)" v-show也可以绑定一个函数，这个函数返回true，或false ，可以绑定一个表达式-->
+            <li v-show="needShow(rating.rateType,rating.text)" v-for="rating in food.ratings" class="rating-item border-1px">
+              <div class="user">
+                <span class="name">{{rating.username}}</span>
+                <img :src="rating.avatar" alt="" class="avatar" width="12" height="12">
+              </div>
+              <div class="time">{{rating.rateTime}}</div>
+              <p class="text">
+                <span :class="{'icon-thumb_up':rating.rateType === 0,'icon-thumb_down':rating.rateType === 1}"></span>{{rating.text}}
+              </p>
+            </li>
+          </ul>
+          <div class="no-rating" v-show="!food.ratings || !food.ratings.length"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -58,7 +74,7 @@
       return {
         showFlag:false,
         selectType:ALL,
-        onlyContent:true,
+        onlyContent:true,  //
         desc:{
           all:'全部',
           positive:'推荐',
@@ -70,8 +86,8 @@
       //父组件可以调用子组件的方法，子组件不能调用父组件的方法
       show(){
         this.showFlag = true;
-        this.selectType = ALL;
-        this.onlyContent = true;
+        this.selectType = ALL;  //每次初始化
+        this.onlyContent = true;  //每次初始化
         //当这个页面被展示出来之后，就可以加载滚动的插件了
         //因为这个是异步的，所以一定要用$nextTick()
         //因为只有用$nextTick()才能保证这个DOM是已经渲染出来了的
@@ -97,6 +113,36 @@
         this.$dispatch('cart.add',event.target);
         //因为第一次可能是没有这个food的，所以要用set方法
         Vue.set(this.food,'count',1);
+      },
+      needShow(type,text){
+        //只看有内容的，并且没有文本
+        if(this.onlyContent && !text){
+          return false;
+        }
+        if(this.selectType === ALL){
+          return true;
+        }else{
+          console.log(type);
+          return type === this.selectType;
+        }
+      }
+    },
+    //监听两个组件，监听子组件里面的dispatch
+    events:{
+      //
+      'ratingtype.select'(type){
+        //监听子组件，将type传给父组件的selectType
+        this.selectType = type;
+        //这里要刷新滚动条，不过是需要异步更新，不能直接立马操作
+        this.$nextTick(() => {
+          this.scroll.refresh();
+        });
+      },
+      'content.toggle'(onlyContent){
+        this.onlyContent = onlyContent;
+        this.$nextTick(() => {
+          this.scroll.refresh();
+        });
       }
     },
     components:{
@@ -108,6 +154,7 @@
 </script>
 
 <style lang="stylus" rel="stylesheet/stylus">
+  @import "../../common/stylus/mixin.styl";
   .food
     position :fixed
     left :0
@@ -213,4 +260,41 @@
           margin-bottom :6px
           font-size :14px
           color:rgb(7,17,27)
+        .rating-wrapper
+          padding: 0 18px
+          .rating-item
+            position :relative
+            padding :16px 0
+            border-1px(rgba(7,17,27,0.1))
+            .user
+              position :absolute
+              right :0
+              top :16px
+              font-size :0
+              line-height :12px
+              .name
+                display :inline-block
+                margin-right :6px
+                vertical-align :top
+                color :rgb(147,153,159)
+                font-size :10px
+              .avatar
+                border-radius :50%
+            .time
+              /*先写布局，再写*/
+              margin-bottom :6px
+              line-height :12px
+              color :rgb(147,153,159)
+              font-size :10px
+            .text
+              line-height :16px
+              font-size :12px
+              color :rgb(7,17,27)
+              .icon-thumb_down,.icon-thumb_up
+                margin-right :4px
+                font-size :12px
+              .icon-thumb_up
+                color :rgb(0,160,220)
+              .icon-thumb_down
+                color :rgb(147,153,159)
 </style>
