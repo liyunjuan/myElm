@@ -40,13 +40,14 @@
                 <span class="name">{{rating.username}}</span>
                 <img :src="rating.avatar" alt="" class="avatar" width="12" height="12">
               </div>
-              <div class="time">{{rating.rateTime}}</div>
+              <!-- 对rating.rateTime做一个filter，用于将时间戳转化为想要的时间格式-->
+              <div class="time">{{rating.rateTime | formatDate}}</div>
               <p class="text">
                 <span :class="{'icon-thumb_up':rating.rateType === 0,'icon-thumb_down':rating.rateType === 1}"></span>{{rating.text}}
               </p>
             </li>
           </ul>
-          <div class="no-rating" v-show="!food.ratings || !food.ratings.length"></div>
+          <div class="no-rating" v-show="!food.ratings || !food.ratings.length">暂无评价</div>
         </div>
       </div>
     </div>
@@ -59,6 +60,8 @@
   import Vue from 'vue';
   import split from 'components/split/split';
   import ratingselect from 'components/ratingselect/ratingselect';
+  //这里用的是花括号，而不是直接一个变量；区别是，不带花括号的，引用的是export default的方式export出来的，带花括号的表示export的是function，可以export多个function，直接在花括号里面逗号分隔
+  import {formatDate} from 'common/js/date';
 
   const POSITIVE = 0;
   const NEGATIVE = 1;
@@ -122,7 +125,6 @@
         if(this.selectType === ALL){
           return true;
         }else{
-          console.log(type);
           return type === this.selectType;
         }
       }
@@ -143,6 +145,16 @@
         this.$nextTick(() => {
           this.scroll.refresh();
         });
+      }
+    },
+    //在上面引用的filter，在这里可以统一定义filters，然后取名上面的对应的filter
+    filters:{
+      //这个filter的参数就可以取到在上面的要处理的数据
+      formatDate(time){
+        console.log(time);
+        //用一个js模块来实现，在js里面去创建
+        let date = new Date(time);
+        return formatDate(date,'yyyy-MM-dd hh:mm');
       }
     },
     components:{
@@ -297,4 +309,8 @@
                 color :rgb(0,160,220)
               .icon-thumb_down
                 color :rgb(147,153,159)
+          .no-rating
+            padding :16px 0
+            font-size :12px
+            color: rgb(147,153,159)
 </style>

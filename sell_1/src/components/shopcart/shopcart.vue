@@ -44,7 +44,10 @@
         </ul>
       </div>
     </div>
-  </div>
+      <div transition="drop" v-for="ball in balls" v-show="ball.show" class="ball">
+        <div class="inner inner-hook"></div>
+      </div>
+    </div>
   <div class="list-mask" v-show="listShow" transition="fade" @click="hideList"></div>
 </template>
 
@@ -76,7 +79,7 @@
         default:0
       }
     },
-    data(){
+    data() {
       return {
         balls:[
           {
@@ -158,10 +161,11 @@
     },
     methods:{
       drop(el){
+        //找去当前
+        //遍历这个balls，找到第一个隐藏的小球，将其置为显示，同时记录这个元素
         for(let i=0;i<this.balls.length;i++){
           let ball = this.balls[i];
           if(!ball.show){
-            // 这个能触发动画
             ball.show = true;
             ball.el = el;
             this.dropBalls.push(ball);
@@ -191,51 +195,73 @@
         window.alert(`需要支付${this.totalPrice}元`);
       }
     },
+    // transitions:{
+    //   drop:{
+    //     beforeEnter(el){
+    //       // 找到所有show为true的小球
+    //       let count = this.balls.length;
+    //       while (count--){
+    //         let ball = this.balls[count];
+    //         if(ball.show){
+    //           //获取加入购物车的标志的位置
+    //           //获得这个标志相对于视口的位置
+    //           let rect = ball.el.getBoundingClientRect();
+    //           //获取加购物车标志和左下角购物车位置的横向和纵向的差值
+    //           let x = rect.left - 32;
+    //           let y = -(window.innerHeight - rect.top - 22);
+    //           el.style.display = '';
+    //           //这是外层原生做一个纵向的动画
+    //           el.style.webkitTransform = `translate3d(0,${y}px,0)`;
+    //           el.style.transform = `translate3d(0,${y}px,0)`;
+    //           //内层元素做一个横向的动画
+    //           // 通过className获取到里面的横向动画的元素：inner-hook,只是被js调用
+    //           let inner = el.getElementsByClassName('inner-hook')[0];
+    //           inner.style.webkitTransform = `translate3d(${x}px,0,0)`;
+    //           inner.style.transform = `translate3d(${x}px,0,0)`;
+    //   }
+    // },
+    //这里是根据Vue官网写的动画
     transitions:{
+      //这是一个钩子，每个动作接收一个dom元素，在当前这个例子中这个el表示transitio=drop的元素
       drop:{
         beforeEnter(el){
-          // 找到所有show为true的小球
+          //找到所有show=true的小球
           let count = this.balls.length;
-          while (count--){
+          while(count--){
             let ball = this.balls[count];
             if(ball.show){
-              //获取加入购物车的标志的位置
-              //获得这个标志相对于视口的位置
+              //获取cartcontrol存的位置，是上面ball.el
+              //这是浏览器的一个方法，相当于获取当前位置相对于视口的一个位置，返回left和top
               let rect = ball.el.getBoundingClientRect();
-              //获取加购物车标志和左下角购物车位置的横向和纵向的差值
-              let x = rect.left - 32;
+              let x = rect.left -32;
+              //y值是一个负值，是浏览器窗口减去top的值，再减去22
               let y = -(window.innerHeight - rect.top - 22);
               el.style.display = '';
-              //这是外层原生做一个纵向的动画
+              //外层元素做一个纵向的动画
               el.style.webkitTransform = `translate3d(0,${y}px,0)`;
               el.style.transform = `translate3d(0,${y}px,0)`;
               //内层元素做一个横向的动画
-              // 通过className获取到里面的横向动画的元素：inner-hook,只是被js调用
               let inner = el.getElementsByClassName('inner-hook')[0];
               inner.style.webkitTransform = `translate3d(${x}px,0,0)`;
-              inner.style.transform = `translate3d(${x}px,0,0)`;
+              inner.style.ransform = `translate3d(${x}px,0,0)`;
             }
           }
         },
         enter(el){
-          //当动画完成的时候，进入的时候的状态
-          // 首先要主动出发浏览器重绘,这个变量只是为了引起浏览器重绘，而不会用到，所以要加一个es注释，否则会报错
-          /* eslint-disable no-unused-vars*/
-          let rf = el.offsetHeight;
+          //当这个小球动画完成的时候
+          //触发浏览器重绘：当获取这个高度的时候，会强制浏览器刷新
+          /* eslint-disable no-unused-vars */
+          let ref = el.offsetHeight;
           this.$nextTick(() => {
-            //如果没有变量，只能用单引号，这是一个规范
-            //这是外层原生做一个纵向的动画
             el.style.webkitTransform = 'translate3d(0,0,0)';
             el.style.transform = 'translate3d(0,0,0)';
-            //内层元素做一个横向的动画
-            // 通过className获取到里面的横向动画的元素：inner-hook,只是被js调用
             let inner = el.getElementsByClassName('inner-hook')[0];
             inner.style.webkitTransform = 'translate3d(0,0,0)';
-            inner.style.transform = 'translate3d(0,0,0)';
+            inner.style.ransform = 'translate3d(0,0,0)';
           });
         },
         afterEnter(el){
-          //需要把balls和dropBalls置为空
+          //取出这个在执行动画的小球，dropballs放的是进行动画的小球
           let ball = this.dropBalls.shift();
           if(ball){
             ball.show = false;

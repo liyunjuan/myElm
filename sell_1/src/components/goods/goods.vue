@@ -1,5 +1,6 @@
 <template>
   <div class="goods">
+    <!--访问dom的时候用的是v-el-->
     <div class="menu-wrapper" v-el:menu-wrapper>
       <ul>
         <!--这里的v-el的值一定要用中划线-->
@@ -18,7 +19,7 @@
           <ul>
             <li v-for="food in item.foods" @click="selectFood(food,$event)" class="food-item border-1px">
               <div class="icon">
-                <img width="57" :src="d food.icon" alt="">
+                <img width="57" :src="food.icon" alt="">
               </div>
               <div class="content">
                 <h2 class="name">{{food.name}}</h2>
@@ -40,6 +41,7 @@
       </ul>
     </div>
     <!--传2个属性，一个是配送费，一个是起送费-->
+    <!--父组件调用子组件：v-ref-->
     <shopcart v-ref:shopcart :select-foods="selectFoods" :delivery-price="seller.deliveryPrice" :min-price="seller.minPrice"></shopcart>
   </div>
   <food :food="selectedFood" v-ref:food></food>
@@ -120,6 +122,7 @@
         if(!event._constructed){
           return;
         }
+        //这是访问dom：this.$els
         let foodList = this.$els.foodsWrapper.getElementsByClassName('food-list-hook');
         //拿到对应的food区域
         let el = foodList[index];
