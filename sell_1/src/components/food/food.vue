@@ -151,7 +151,6 @@
     filters:{
       //这个filter的参数就可以取到在上面的要处理的数据
       formatDate(time){
-        console.log(time);
         //用一个js模块来实现，在js里面去创建
         let date = new Date(time);
         return formatDate(date,'yyyy-MM-dd hh:mm');

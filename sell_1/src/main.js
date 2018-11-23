@@ -42,5 +42,5 @@ router.map({
 // #app 是挂载点
 router.start(app, '#app');
 
-// 进入默认页面
-router.go('/goods');
+// 进入默认页面，模式不配置默认页面，当上线的时候默认在链接后边配置hash值来表示进入到哪一个页面
+// router.go('/goods');
