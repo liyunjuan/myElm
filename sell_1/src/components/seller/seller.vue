@@ -28,7 +28,7 @@
             </div>
           </li>
         </ul>
-        <div class="favorite">
+        <div class="favorite" @click="toggleFavorite">
           <span class="icon-favorite" :class="{'active':favorite}"></span>
           <span class="text">{{favoriteText}}</span>
         </div>
@@ -106,6 +106,12 @@
       this._initPics();
     },
     methods:{
+      toggleFavorite(event){
+        if(!event._constructed){
+          return;
+        }
+        this.favorite =
+      },
       _initScroll(){
         if(!this.scroll){
           this.scroll = new BScroll(this.$els.seller,{
@@ -200,7 +206,7 @@
 
       .favorite
         position :absolute
-        right :18px
+        right :11px
         top:18px
         text-align :center
         .icon-favorite
