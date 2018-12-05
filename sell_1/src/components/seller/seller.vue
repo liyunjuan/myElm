@@ -72,6 +72,7 @@
   import BScroll from 'better-scroll';
   import star from 'components/star/star';
   import split from 'components/split/split';
+  import {saveToLocal,loadFromLocal} from 'common/js/store';
 
 
   export default {
@@ -82,7 +83,9 @@
     },
     data(){
       return {
-        favorite:false
+        favorite:(() => {
+          return loadFromLocal(this.seller.id,'favorite',false);
+        })()
       };
     },
     computed:{
@@ -110,7 +113,8 @@
         if(!event._constructed){
           return;
         }
-        this.favorite =
+        this.favorite = !this.favorite;
+        saveToLocal(this.seller.id,'favorite',this.favorite);
       },
       _initScroll(){
         if(!this.scroll){
@@ -206,7 +210,8 @@
 
       .favorite
         position :absolute
-        right :11px
+        width :50px
+        right :13px
         top:18px
         text-align :center
         .icon-favorite

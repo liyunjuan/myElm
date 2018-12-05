@@ -12,7 +12,8 @@
         <a v-link="{path:'/seller'}">商家</a>
       </div>
     </div>
-    <router-view :seller="seller">
+    <!--keep-alive  这个属性是用来优化的，保持数据的一致，保留状态-->
+    <router-view :seller="seller" keep-alive>
 
     </router-view>
   </div>
@@ -20,21 +21,28 @@
 
 <script type="text/ecmascript-6">
   import header from 'components/header/header.vue';
+  import {urlParse} from 'common/js/util';
 
   const ERR_OK = 0;
 
   export default {
     data() {
       return {
-        seller: {}
+        seller: {
+          id:(() => {
+            let queryParam =urlParse();
+            return queryParam.id;
+          })()
+        }
       };
     },
     created() {
-      this.$http.get('/api/seller').then((response) => {
+      this.$http.get('/api/seller?id='+this.seller.id).then((response) => {
         response = response.body; //得到json对象
         //判断是不是没有错误
         if(response.errno === ERR_OK){
-          this.seller = response.data;
+          // this.seller = response.data;
+          this.seller = Object.assign({},this.seller,response.data);
         }
       });
     },
